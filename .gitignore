@@ -1,1 +1,3 @@
-.idea
+var/
+.idea/
+.phpunit.result.cache
