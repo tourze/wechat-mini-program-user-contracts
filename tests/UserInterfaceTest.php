@@ -36,7 +36,6 @@ class UserInterfaceTest extends TestCase
     {
         $openId = $this->user->getOpenId();
         
-        $this->assertIsString($openId);
         $this->assertNotEmpty($openId);
         $this->assertEquals('test-open-id', $openId);
     }
