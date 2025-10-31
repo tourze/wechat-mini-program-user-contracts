@@ -1,72 +1,96 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatMiniProgramUserContracts\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\WechatMiniProgramAppIDContracts\MiniProgramInterface;
-use Tourze\WechatMiniProgramUserContracts\Tests\Mock\MockMiniProgram;
-use Tourze\WechatMiniProgramUserContracts\Tests\Mock\MockUser;
+use Tourze\WechatMiniProgramUserContracts\UserInterface;
 
+/**
+ * @internal
+ */
+#[CoversClass(UserInterface::class)]
 class UserInterfaceTest extends TestCase
 {
-    private MockUser $user;
-    private MockMiniProgram $miniProgram;
-    
-    protected function setUp(): void
+    public function testInterfaceExists(): void
     {
-        $this->miniProgram = new MockMiniProgram('wx12345', 'secret12345');
-        $this->user = new MockUser(
-            $this->miniProgram,
-            'test-open-id',
-            'test-union-id',
-            'https://example.com/avatar.jpg'
-        );
+        $this->assertTrue(interface_exists(UserInterface::class));
     }
-    
-    public function testGetMiniProgram_returnsValidMiniProgram(): void
+
+    public function testInterfaceHasRequiredMethods(): void
     {
-        $miniProgram = $this->user->getMiniProgram();
-        
-        $this->assertInstanceOf(MiniProgramInterface::class, $miniProgram);
-        $this->assertEquals('wx12345', $miniProgram->getAppId());
-        $this->assertEquals('secret12345', $miniProgram->getAppSecret());
+        $reflection = new \ReflectionClass(UserInterface::class);
+
+        $this->assertTrue($reflection->hasMethod('getMiniProgram'));
+        $this->assertTrue($reflection->hasMethod('getOpenId'));
+        $this->assertTrue($reflection->hasMethod('getUnionId'));
+        $this->assertTrue($reflection->hasMethod('getAvatarUrl'));
     }
-    
-    public function testGetOpenId_returnsNonEmptyString(): void
+
+    public function testGetMiniProgramMethodSignature(): void
     {
-        $openId = $this->user->getOpenId();
-        
-        $this->assertNotEmpty($openId);
-        $this->assertEquals('test-open-id', $openId);
+        $reflection = new \ReflectionClass(UserInterface::class);
+        $method = $reflection->getMethod('getMiniProgram');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('getMiniProgram', $method->getName());
+        $this->assertSame(0, $method->getNumberOfParameters());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame(MiniProgramInterface::class, $returnType->getName());
+        $this->assertFalse($returnType->allowsNull());
     }
-    
-    public function testGetUnionId_returnsExpectedValue(): void
+
+    public function testGetOpenIdMethodSignature(): void
     {
-        $unionId = $this->user->getUnionId();
-        
-        $this->assertIsString($unionId);
-        $this->assertEquals('test-union-id', $unionId);
+        $reflection = new \ReflectionClass(UserInterface::class);
+        $method = $reflection->getMethod('getOpenId');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('getOpenId', $method->getName());
+        $this->assertSame(0, $method->getNumberOfParameters());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame('string', $returnType->getName());
+        $this->assertFalse($returnType->allowsNull());
     }
-    
-    public function testGetUnionId_canReturnNull(): void
+
+    public function testGetUnionIdMethodSignature(): void
     {
-        $user = new MockUser($this->miniProgram, 'open-id-without-union', null);
-        
-        $this->assertNull($user->getUnionId());
+        $reflection = new \ReflectionClass(UserInterface::class);
+        $method = $reflection->getMethod('getUnionId');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('getUnionId', $method->getName());
+        $this->assertSame(0, $method->getNumberOfParameters());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame('string', $returnType->getName());
+        $this->assertTrue($returnType->allowsNull());
     }
-    
-    public function testGetAvatarUrl_returnsExpectedValue(): void
+
+    public function testGetAvatarUrlMethodSignature(): void
     {
-        $avatarUrl = $this->user->getAvatarUrl();
-        
-        $this->assertIsString($avatarUrl);
-        $this->assertEquals('https://example.com/avatar.jpg', $avatarUrl);
+        $reflection = new \ReflectionClass(UserInterface::class);
+        $method = $reflection->getMethod('getAvatarUrl');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('getAvatarUrl', $method->getName());
+        $this->assertSame(0, $method->getNumberOfParameters());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame('string', $returnType->getName());
+        $this->assertTrue($returnType->allowsNull());
     }
-    
-    public function testGetAvatarUrl_canReturnNull(): void
-    {
-        $user = new MockUser($this->miniProgram, 'open-id-without-avatar', 'union-id', null);
-        
-        $this->assertNull($user->getAvatarUrl());
-    }
-} 
+}

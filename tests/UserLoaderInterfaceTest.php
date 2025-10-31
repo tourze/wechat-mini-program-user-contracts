@@ -1,86 +1,124 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\WechatMiniProgramUserContracts\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Tourze\WechatMiniProgramUserContracts\Tests\Mock\MockMiniProgram;
-use Tourze\WechatMiniProgramUserContracts\Tests\Mock\MockUser;
-use Tourze\WechatMiniProgramUserContracts\Tests\Mock\MockUserLoader;
+use Tourze\WechatMiniProgramAppIDContracts\MiniProgramInterface;
 use Tourze\WechatMiniProgramUserContracts\UserInterface;
+use Tourze\WechatMiniProgramUserContracts\UserLoaderInterface;
 
+/**
+ * @internal
+ */
+#[CoversClass(UserLoaderInterface::class)]
 class UserLoaderInterfaceTest extends TestCase
 {
-    private MockUserLoader $userLoader;
-    private MockMiniProgram $miniProgram;
-    
-    protected function setUp(): void
+    public function testInterfaceExists(): void
     {
-        $this->miniProgram = new MockMiniProgram('wx12345', 'secret12345');
-        $this->userLoader = new MockUserLoader();
-        
-        // 预先添加一些用户
-        $user1 = new MockUser($this->miniProgram, 'existing-open-id', 'existing-union-id');
-        $user2 = new MockUser($this->miniProgram, 'another-open-id', 'another-union-id');
-        
-        $this->userLoader->addUser($user1);
-        $this->userLoader->addUser($user2);
+        $this->assertTrue(interface_exists(UserLoaderInterface::class));
     }
-    
-    public function testLoadUserByOpenId_withExistingOpenId_returnsUser(): void
+
+    public function testInterfaceHasRequiredMethods(): void
     {
-        $user = $this->userLoader->loadUserByOpenId('existing-open-id');
-        
-        $this->assertInstanceOf(UserInterface::class, $user);
-        $this->assertEquals('existing-open-id', $user->getOpenId());
-        $this->assertEquals('existing-union-id', $user->getUnionId());
+        $reflection = new \ReflectionClass(UserLoaderInterface::class);
+
+        $this->assertTrue($reflection->hasMethod('loadUserByOpenId'));
+        $this->assertTrue($reflection->hasMethod('loadUserByUnionId'));
+        $this->assertTrue($reflection->hasMethod('createUser'));
     }
-    
-    public function testLoadUserByOpenId_withNonExistingOpenId_returnsNull(): void
+
+    public function testLoadUserByOpenIdMethodSignature(): void
     {
-        $user = $this->userLoader->loadUserByOpenId('non-existing-open-id');
-        
-        $this->assertNull($user);
+        $reflection = new \ReflectionClass(UserLoaderInterface::class);
+        $method = $reflection->getMethod('loadUserByOpenId');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('loadUserByOpenId', $method->getName());
+        $this->assertSame(1, $method->getNumberOfParameters());
+
+        $parameters = $method->getParameters();
+        $openIdParam = $parameters[0];
+        $this->assertSame('openId', $openIdParam->getName());
+        $paramType = $openIdParam->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame('string', $paramType->getName());
+        $this->assertFalse($paramType->allowsNull());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame(UserInterface::class, $returnType->getName());
+        $this->assertTrue($returnType->allowsNull());
     }
-    
-    public function testLoadUserByUnionId_withExistingUnionId_returnsUser(): void
+
+    public function testLoadUserByUnionIdMethodSignature(): void
     {
-        $user = $this->userLoader->loadUserByUnionId('existing-union-id');
-        
-        $this->assertInstanceOf(UserInterface::class, $user);
-        $this->assertEquals('existing-open-id', $user->getOpenId());
-        $this->assertEquals('existing-union-id', $user->getUnionId());
+        $reflection = new \ReflectionClass(UserLoaderInterface::class);
+        $method = $reflection->getMethod('loadUserByUnionId');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('loadUserByUnionId', $method->getName());
+        $this->assertSame(1, $method->getNumberOfParameters());
+
+        $parameters = $method->getParameters();
+        $unionIdParam = $parameters[0];
+        $this->assertSame('unionId', $unionIdParam->getName());
+        $paramType = $unionIdParam->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame('string', $paramType->getName());
+        $this->assertFalse($paramType->allowsNull());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame(UserInterface::class, $returnType->getName());
+        $this->assertTrue($returnType->allowsNull());
     }
-    
-    public function testLoadUserByUnionId_withNonExistingUnionId_returnsNull(): void
+
+    public function testCreateUserMethodSignature(): void
     {
-        $user = $this->userLoader->loadUserByUnionId('non-existing-union-id');
-        
-        $this->assertNull($user);
+        $reflection = new \ReflectionClass(UserLoaderInterface::class);
+        $method = $reflection->getMethod('createUser');
+
+        $this->assertTrue($method->isPublic());
+        $this->assertSame('createUser', $method->getName());
+        $this->assertSame(3, $method->getNumberOfParameters());
+
+        $parameters = $method->getParameters();
+
+        // First parameter: MiniProgramInterface $miniProgram
+        $miniProgramParam = $parameters[0];
+        $this->assertSame('miniProgram', $miniProgramParam->getName());
+        $paramType = $miniProgramParam->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame(MiniProgramInterface::class, $paramType->getName());
+        $this->assertFalse($paramType->allowsNull());
+
+        // Second parameter: string $openId
+        $openIdParam = $parameters[1];
+        $this->assertSame('openId', $openIdParam->getName());
+        $paramType = $openIdParam->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame('string', $paramType->getName());
+        $this->assertFalse($paramType->allowsNull());
+
+        // Third parameter: ?string $unionId = null (optional)
+        $unionIdParam = $parameters[2];
+        $this->assertSame('unionId', $unionIdParam->getName());
+        $paramType = $unionIdParam->getType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $paramType);
+        $this->assertSame('string', $paramType->getName());
+        $this->assertTrue($paramType->allowsNull());
+        $this->assertTrue($unionIdParam->isOptional());
+        $this->assertNull($unionIdParam->getDefaultValue());
+
+        $returnType = $method->getReturnType();
+        $this->assertNotNull($returnType);
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame(UserInterface::class, $returnType->getName());
+        $this->assertFalse($returnType->allowsNull());
     }
-    
-    public function testCreateUser_withRequiredParameters_createsAndReturnsUser(): void
-    {
-        $user = $this->userLoader->createUser($this->miniProgram, 'new-open-id');
-        
-        $this->assertInstanceOf(UserInterface::class, $user);
-        $this->assertEquals('new-open-id', $user->getOpenId());
-        $this->assertNull($user->getUnionId());
-        
-        // 确认用户已添加到加载器
-        $loadedUser = $this->userLoader->loadUserByOpenId('new-open-id');
-        $this->assertSame($user, $loadedUser);
-    }
-    
-    public function testCreateUser_withAllParameters_createsAndReturnsUser(): void
-    {
-        $user = $this->userLoader->createUser($this->miniProgram, 'new-open-id-2', 'new-union-id');
-        
-        $this->assertInstanceOf(UserInterface::class, $user);
-        $this->assertEquals('new-open-id-2', $user->getOpenId());
-        $this->assertEquals('new-union-id', $user->getUnionId());
-        
-        // 确认用户可以通过 unionId 加载
-        $loadedUser = $this->userLoader->loadUserByUnionId('new-union-id');
-        $this->assertSame($user, $loadedUser);
-    }
-} 
+}

@@ -1,5 +1,7 @@
 # wechat-mini-program-user-contracts
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 微信用户定义
 
 ## 安装
