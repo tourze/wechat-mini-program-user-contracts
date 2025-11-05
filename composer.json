@@ -4,7 +4,7 @@
   "type": "library",
   "license": "MIT",
   "require": {
-    "tourze/wechat-mini-program-appid-contracts": "0.0.*"
+    "tourze/wechat-mini-program-appid-contracts": "1.0.*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
